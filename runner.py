@@ -107,11 +107,11 @@ if __name__ == "__main__":
     # true_dmu = (delta_mu, delta_mu_err)
     my_args = (m_star, rv_epoch, d_star)
 
-    n_steps = int(1e4)
+    n_steps = int(1e3)
     
     # emcee implementation. Works better than homemade mcmc, but I can't get pool to work
     #################################################################
-    means = [10, 10, 0.25, two_pi/8, two_pi/4, two_pi/6]
+    means = [29, 38, 0.25, two_pi/8, two_pi/4, two_pi/6]
     sig   = [1, 1, 0.01, 0.1, 0.1, 0.1]
     cov = np.diag(sig)
     n_walkers = 13
