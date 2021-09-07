@@ -39,8 +39,6 @@ if __name__ == "__main__":
     om = np.pi/3
     E = 5*np.pi/7
 
-    print(gamma(a, Mp, per, e, i, om, E, m_star), per)
-    dfdd
     ###################################################
     
     import time
@@ -49,7 +47,7 @@ if __name__ == "__main__":
     
     from multiprocessing import Pool
     import os
-    os.environ["OMP_NUM_THREADS"] = "12"
+    #os.environ["OMP_NUM_THREADS"] = "12"
     
     
     # GL758, an example star in Tim Brandt's Orvara code. Using this to compare results.
@@ -78,7 +76,7 @@ if __name__ == "__main__":
     #
     # initial_state = np.random.multivariate_normal(means, cov, size = n_walkers)
     #
-    # my_sampler = emcee.EnsembleSampler(nwalkers=n_walkers, ndim=6, log_prob_fn=log_lik_tot, args=[data, my_args])
+    # my_sampler = emcee.EnsembleSampler(nwalkers=n_walkers, ndim=len(means), log_prob_fn=log_lik_tot, args=[data, my_args])
     # start = time.time()
     # my_sampler.run_mcmc(initial_state, n_steps)
     # end = time.time()
@@ -101,19 +99,19 @@ if __name__ == "__main__":
     
     # ptemcee experimentation.
     #################################################################
-    means = [4.5, 7, 0.7, two_pi/8, two_pi/4, two_pi/6]
-    sig   = [1, 1, 0.01, 1, 1, 1]
+    means = [7, 10, 0.3, two_pi/8, two_pi/4, two_pi/6]
+    sig   = [0.1, 0.1, 0.01, 0.01, 0.01, 0.01]
     cov = np.diag(sig)
     n_temps = 10
-    n_walkers = 32
+    n_walkers = 18
 
     initial_state = np.random.multivariate_normal(means, cov, size = (n_temps, n_walkers))
     #print(initial_state[:,:,0])
-    
+
     #my_sampler = ptemcee.Sampler(nwalkers=n_walkers, ndim=6, log_prob_fn=log_lik_tot, args=[data, my_args])
-    my_sampler = ptemcee.Sampler(nwalkers=n_walkers, dim=6,
+    my_sampler = ptemcee.Sampler(nwalkers=n_walkers, dim=len(means),
                                 logl=log_lik_tot, ntemps=n_temps,
-                                logp = return_one, loglargs=[data, my_args])
+                                logp = return_one, loglargs=[data, my_args], Tmax=30)
     start = time.time()
     my_sampler.run_mcmc(p0=initial_state, iterations=n_steps)
     end = time.time()
@@ -127,11 +125,14 @@ if __name__ == "__main__":
 
     print('Acceptance fraction for each walker is', my_sampler.acceptance_fraction)
 
-    flat_samples = my_sampler.flatchain[:,:2]
-    flatter_samples = flat_samples.reshape((-1, 2))
-
-    print(np.shape(flatter_samples))
-
+    flat_samples = my_sampler.flatchain[:,:,:]
+    flatter_samples = flat_samples.reshape((-1, len(means)))
+    # print(np.shape(my_sampler.chain))
+    # print(np.shape(flat_samples))
+    # print(np.shape(flatter_samples))
+    # print(flatter_samples)
+    #
+    # dfsdfs
     fig = corner.corner(flatter_samples, labels=['a','m','e','i','om','M'], show_titles=True)
     plt.show()
     #######################################################################################

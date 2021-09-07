@@ -101,6 +101,13 @@ def log_lik_tot(state, data, args):
     true_gammas = (gdot_data, gdot_err, gddot_data, gddot_err)
     true_dmu = (dmu_data, dmu_err)
     
+    ## Testing ptemcee ndim=2
+    ########################
+    #a, m = state
+    #e, i, om, M_anom_0 = 0.2, two_pi/8, two_pi/4, two_pi/6
+    #state = a, m, e, i, om, M_anom_0
+    ########################
+    
     
     log_pri = log_prior(state)
     if log_pri > -inf:
@@ -170,7 +177,7 @@ def log_lik_dmu(state, true_dmu, args):
     return log_likelihood
 
 
-def log_prior(state, a_lim = (1, 1e2), m_lim = (1, 8e1)):
+def log_prior(state, a_lim = (0.1, 13), m_lim = (0.1, 2e1)):
 
     cdef double a, m, e, i, om, M_anom_0
     cdef double a_min, a_max, m_min, m_max
@@ -184,9 +191,9 @@ def log_prior(state, a_lim = (1, 1e2), m_lim = (1, 8e1)):
     a_pri = a_min < a < a_max
     m_pri = m_min < m < m_max
     e_pri = 0 <= e < 0.99
-    i_pri = -inf < i < inf
-    om_pri = -inf < om < inf
-    M_anom_0_pri = -inf < M_anom_0 < inf
+    i_pri = 0 < i < pi/2
+    om_pri = 0 < om < two_pi
+    M_anom_0_pri = 0 < M_anom_0 < two_pi
 
     if a_pri and m_pri and e_pri and i_pri and om_pri and M_anom_0_pri: 
         log_prob_a = log(1/a/log(a_max/a_min))
