@@ -9,7 +9,7 @@
 #from trends.kern_profiler_dummy import *
 
 import cython
-from libc.math cimport log, sin, sqrt
+from libc.math cimport log, sin, sqrt, abs
 
 import numpy as np
 cimport numpy
@@ -101,13 +101,14 @@ def log_lik_tot(state, data, args):
     true_gammas = (gdot_data, gdot_err, gddot_data, gddot_err)
     true_dmu = (dmu_data, dmu_err)
     
+    
     log_pri = log_prior(state)
     if log_pri > -inf:
         log_lik_rv = log_lik_gamma(state, true_gammas, (m_star, rv_epoch))
         log_lik_astro = log_lik_dmu(state, true_dmu, (m_star, d_star))
 
         log_lik_tot = log_lik_rv + log_lik_astro + log_pri
-    
+
     else:
         log_lik_tot = -inf
     
@@ -169,7 +170,7 @@ def log_lik_dmu(state, true_dmu, args):
     return log_likelihood
 
 
-def log_prior(state, a_lim = (1, 2e2), m_lim = (1, 1e3)):
+def log_prior(state, a_lim = (1, 1e2), m_lim = (1, 8e1)):
 
     cdef double a, m, e, i, om, M_anom_0
     cdef double a_min, a_max, m_min, m_max
@@ -190,7 +191,7 @@ def log_prior(state, a_lim = (1, 2e2), m_lim = (1, 1e3)):
     if a_pri and m_pri and e_pri and i_pri and om_pri and M_anom_0_pri: 
         log_prob_a = log(1/a/log(a_max/a_min))
         log_prob_m = log(1/m/log(m_max/m_min))
-        log_prob_i = log(sin(i))
+        log_prob_i = log(abs(sin(i)))
         log_prob_e = log(spst.beta.pdf(e, 0.867, 3.03))
         
         log_prob = log_prob_a + log_prob_m + log_prob_i + log_prob_e
@@ -200,6 +201,13 @@ def log_prior(state, a_lim = (1, 2e2), m_lim = (1, 1e3)):
 
     return log_prob
     
+def return_one(x):
+    """
+    This function is just to pass to ptemcee.
+    Since log_lik_tot() already accounts for priors,
+    just set priors to 1 to obtain the posterior.
+    """
+    return 1
     
 
 
