@@ -191,7 +191,7 @@ def log_prior(state, a_lim = (0.1, 13), m_lim = (0.1, 2e1)):
     a_pri = a_min < a < a_max
     m_pri = m_min < m < m_max
     e_pri = 0 <= e < 0.99
-    i_pri = 0 < i < pi/2
+    i_pri = 0 < i < pi
     om_pri = 0 < om < two_pi
     M_anom_0_pri = 0 < M_anom_0 < two_pi
 
